@@ -7,13 +7,6 @@ import pytz
 from KalshiClientsBaseV2 import ExchangeClient
 import json
 
-# variables to disable whole blocks of code at a time:
-disable_block1 = True
-disable_block2 = True
-disable_block3 = True
-disable_block4 = True
-disable_block5 = True
-
 # Set time constants
 SECONDS_PER_MINUTE = 60
 SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE

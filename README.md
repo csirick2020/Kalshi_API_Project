@@ -11,3 +11,7 @@ The standard ('Kalshi_API_Client_v1.py') has a bit more functionality and even s
 The beauty of this program is that, like any algorithmic trading procedure, it runs in a loop, which is only given permission to exit once the user's pre-programmed "buy" ceiling has been met or the user's "buy-range" time has expired. When either (or the first) of these two conditionals are met, the program will then enter into 'stop-loss mode', selling one contract at a time (if any were purchased) if the user's predefined "stop-loss" price is triggered. Essentially, a person could set this program before they leave home for the day and let it do all the work while they're away. Returns will only be as good as the user's strategy, so think wisely when setting the 'buy' time range, 'buy' price range, and stop-loss 'sell' price!
 
 (Something that's yet to be tested is just how long the loop is able to run and whether Kalshi has certain time-out limits enabled. I included a function that automatically logs the user back in after every twenty loops (whether in "buy" or "sell" loop), so this should eliminate any potential HTTP time-out errors.)
+
+Here are a couple of YouTube videos I made that show me working with this Project:
+https://youtu.be/Ip591Wjn2i0?si=cQYvizg9nThMy84-
+https://youtu.be/dHoq9LxrYsk?si=biZSQycicUAM_Bqx

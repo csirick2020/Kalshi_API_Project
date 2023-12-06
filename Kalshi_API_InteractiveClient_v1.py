@@ -75,10 +75,10 @@ print("Please enter (1) for 'trading mode' or (2) for 'demo mode'...")
 demo_mode = input()
 while True:
     if demo_mode == '1':
-        demo_mode = int(demo_mode)
+        demo_mode = False
         break
     elif demo_mode == '2':
-        demo_mode = int(demo_mode)
+        demo_mode = True
         break
     else:
         print("Please type the number key '1' or '2' (and the Enter) to choose.")
@@ -527,7 +527,7 @@ max_price_range = int(input("Please enter the maximum price (at which you will b
 print(f"Your price range: {min_price_range} to {max_price_range}")
 print()
 print("You will now set a stop-loss price (at which the program will sell).\n(NOTE: The contracts will sell one by one with a short interval in between each sale, NOT all at once.")
-sell_price = input("Set your stop-loss price: ")
+sell_price = int(input("Set your stop-loss price: "))
 # ---------------------------- END OF USER PICKS PRICE (RANGE) -----------------------------------------------------
 
 # Create a variable for number of loops (to prevent possible time-outs)

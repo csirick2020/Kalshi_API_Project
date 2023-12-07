@@ -8,8 +8,6 @@ The interactive version will work for someone who knows nothing about code, but 
 
 The standard ('Kalshi_API_Client_v1.py') has a bit more functionality, but everything you do must be done from within the code. Essentially, you can use it just like the interactive version for basic algorithmic trading, but you'd be setting all the variables manually from within the code. The extra functionality includes the ability to choose any Event or Market on Kalshi and to filter through the data in different ways. Adjusting the sleep time(s) between buying and selling is another extended feature that can only be set manually in this standard version.
 
-The beauty of this program is that a person could set the parameters before they leave home for the day and let it do all the work while they're away. Returns will only be as good as the user's strategy, so think wisely when setting the 'buy' time range, 'buy' price range, and stop-loss 'sell' price!
-
 Here are a couple of YouTube videos I made that show me working with this Project:
 https://youtu.be/Ip591Wjn2i0?si=cQYvizg9nThMy84-
 https://youtu.be/dHoq9LxrYsk?si=biZSQycicUAM_Bqx

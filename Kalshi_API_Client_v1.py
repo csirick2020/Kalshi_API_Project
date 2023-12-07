@@ -13,7 +13,7 @@ disable_buyblock = True
 disable_sellblock = True
 
 # Set the path to your configuration file
-config_file_path = "C:\\Users\\aaa\\AppData\\Local\\Programs\\Python\\Python38\\My Programs\\Finance\\Kalshi\\Kalshi_config_file.json"
+config_file_path = "\PATH\TO\YOUR\CONFIG\FILE.json"
 
 # Open and read the config file
 with open(config_file_path) as config_file:

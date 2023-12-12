@@ -1,11 +1,10 @@
-# Kalshi_API_InteractiveClient_v1
+# Kalshi_API_Interactive_Client_v1
 
 import time
 from datetime import datetime as dt  # Alias 'datetime' as 'dt'
 from datetime import time as dt_time
 import pytz
 from KalshiClientsBaseV2 import ExchangeClient
-import json
 
 # Set time constants
 SECONDS_PER_MINUTE = 60
@@ -21,20 +20,15 @@ def log_trade(action, timestamp, details, side):
         log_file.write(f"{timestamp}: {action} - {details} - {side}\n")
 
 
+# WELCOME
+print("Welcome to the Kalshi Interactive Trading Client!")
+print()
+
 # ### AUTHENTICATION/LOGIN #####################################################################################################################################################################################################################################
+print("First, you will need to log in with your Kalshi credentials.")
 
-# With config file --- (Make interactive by automating the config file setup)
-# ##############################################################################################################################
-
-# use config file to pass in sensitive info
-# Open and read the configuration file
-config_file_path = "/PATH/TO/YOUR/CONFIG/FILE.json"  # replace with location of your config file
-
-with open(config_file_path) as config_file:
-    config = json.load(config_file)
-
-email = config["email"]
-password = config["password"]
+email = input("Please enter your login email: ")
+password = input("Please enter your password: ")
 
 # for prod
 exchange_api_base = "https://trading-api.kalshi.com/trade-api/v2"
@@ -42,13 +36,18 @@ exchange_api_base = "https://trading-api.kalshi.com/trade-api/v2"
 # for demo
 # exchange_api_base = "https://demo-api.kalshi.co/trade-api/v2"
 
+
 # Create an instance of the ExchangeClient and confirm login was successful
 try:
     exchange_client = ExchangeClient(exchange_api_base, email, password)
     if exchange_client.user_id is not None:
         print("Successfully logged in.")
 except Exception as e:
+    print()
     print(f"An error occurred during authentication: {e}")
+    print()
+    print("Please restart the program and enter valid credentials.")
+    quit()
 
 # Get (current) exchange status
 exchange_status = exchange_client.get_exchange_status()
@@ -81,7 +80,7 @@ while True:
         demo_mode = True
         break
     else:
-        print("Please type the number key '1' or '2' (and the Enter) to choose.")
+        print("Please type the number key '1' or '2' (and then Enter) to choose.")
         demo_mode = input()
         continue
 
@@ -495,6 +494,7 @@ end_time = dt_time(end_hours, end_minutes)
 
 # Display formatted variable time range
 print(f"Time Range is from {start_time.strftime('%I:%M %p')} to {end_time.strftime('%I:%M %p')}")
+print()
 
 # Create new time objects without microseconds
 start_time = dt_time(start_time.hour, start_time.minute, start_time.second)
@@ -503,6 +503,7 @@ end_time = dt_time(end_time.hour, end_time.minute, end_time.second)
 # --#--#--#- ### SET 'SELL' TIME RANGE ### -#--#--#--#-------------------------------------------------------------------------
 start_time2 = end_time  # * Selling will not occur until 'buy' time range is over *
 # Create a variable for (selling) end time (based on Wall St. close)
+
 end_time2 = dt_time()
 # Selling end time will vary based on U.S. Time Zone
 if usr_tz_choice == 1:
@@ -528,6 +529,9 @@ print(f"Your price range: {min_price_range} to {max_price_range}")
 print()
 print("You will now set a stop-loss price (at which the program will sell).\n(NOTE: The contracts will sell one by one with a short interval in between each sale, NOT all at once.")
 sell_price = int(input("Set your stop-loss price: "))
+print()
+print("Program loop is now active.")
+print()
 # ---------------------------- END OF USER PICKS PRICE (RANGE) -----------------------------------------------------
 
 # Create a variable for number of loops (to prevent possible time-outs)

@@ -47,7 +47,7 @@ except Exception as e:
     print(f"An error occurred during authentication: {e}")
     print()
     print("Please restart the program and enter valid credentials.")
-    quit()
+    input("Press enter to quit...")
 
 # Get (current) exchange status
 exchange_status = exchange_client.get_exchange_status()
@@ -465,7 +465,7 @@ elif usr_tz_choice == 4:
     usr_tz = pytz.timezone('US/Pacific')
 else:
     print("Invalid choice. Please choose a number between 1 and 4.")
-    quit()
+    input("Press enter to quit...")
 
 # Get the current time in the user's chosen timezone
 current_time = dt.now(usr_tz).time()
@@ -568,7 +568,7 @@ while True:
         get_buy_mrkt_info_no()
     else:
         print("Error: choose_side variable should be set to either 'Y' or 'N'")
-        quit()
+        input("Press enter to quit...")
 
     # This line is repeated in the 'while' loop because time always updates (obviously)
     current_time = dt.now(usr_tz).time()
@@ -660,7 +660,7 @@ while True:
 
     else:
         print("Error: choose_side variable should be set to either 'Y' or 'N'")
-        quit()
+        input("Press enter to quit...")
 
 # ##############################################################################################################################
 # This is the "Sell" loop ------------------------------------------------------------------------------------------------------
@@ -698,7 +698,7 @@ while True:
         get_buy_mrkt_info_no()
     else:
         print("Error: choose_side variable should be set to either 'Y' or 'N'")
-        quit()
+        input("Press enter to quit...")
 
     # This line is repeated in the 'while' loop because time always updates (obviously)
     current_time = dt.now(usr_tz).time()
@@ -789,4 +789,4 @@ while True:
 
 # Logout -----------------------------------------------------------------------------------------------------------------------
 
-quit()
+input("Press enter to quit...")

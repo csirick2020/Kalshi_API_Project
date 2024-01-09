@@ -1,4 +1,12 @@
-This is a set of two (main) Python programs which use Kalshi's API for algorithmic trading (plus an extra tool I built that calculates ROI and its corresponding GUI). The trading scripts do not use the Kalshi-python SDK. Instead, they work solely off of API calls from the ExchangeClient class in the KalshiClientsBaseV2.py script (the one included in their starter files).
+---
+
+<---~~~----~~~~~--->>>---~~~--->>>---~~~--->>>-- __KALSHI API PROJECT__ --<<<---~~~---<<<---~~~---<<<---~~~~~----~~~--->
+
+---
+
+This is a set of two (main) Python programs which use Kalshi's API for algorithmic trading (plus an extra tool I built that calculates ROI). The trading scripts do not use the Kalshi-python SDK. Instead, they work solely off of API calls from the ExchangeClient class in the KalshiClientsBaseV2.py script (the one included in their starter files).
+
+---
 
 Capabilites of either program include:  
 -Logging the user in   
@@ -9,12 +17,30 @@ Capabilites of either program include:
 -Allowing the user to set the max # of contracts he/she is willing to buy in a given session   
 -Allowing the user to set a 'stop-loss' price at which the program will sell contracts purchased within a session
 
+---
+
+<p align="center">
+  <img src="Project_Images/Code_Snippet2.png" alt="Code Snippet Image">
+</p>
+
+---
+
 Note: Neither program is able to enter the stop-loss ('sell') loop until...  
 1.) max # of contracts have been bought, or  
 2.) user's 'time of day' range for buying has ended.
 
+<p align="center">
+  <img src="Project_Images/Buy_and_sell_working.jpg" alt="Program Buy Example Image">
+</p>
+
+<p align="center">
+  <img src="Project_Images/Buy_and_sell_working2.jpg" alt="Program Sell Example Image">
+</p>
+
 Contracts will not be sold (in either program) all at once- instead, they are sold one by one with a short sleep interval in between.  
 Buying is also executed one contract at a time and has a longer sleep period (to make sure price is staying consistent).
+
+---
 
 There are (obviously) differences between using the standard API client code, and the interactive version...
 
@@ -24,8 +50,17 @@ The standard ('Kalshi_API_Client_v1.py') has a bit more functionality, but every
 
 Also, note that the interactive version will only work during normal trading hours (because the 'sell loop' end_time variable is set to stop at the end of the trading day for whatever (U.S.) time zone you choose. I realize this makes the Weekly, Monthly, and Yearly markets less tradable, but honestly, those markets are mainly included because I copied the entire standard API client code to create the interactive version. (Plus, you really don't need algorithmic trading for long term bets.) However, to take them out of the program completely would be overkill because they do still have functionality within trading hours.
 
-Besides the algo trading scripts, there is a Kalshi ROI Calculator and an interactive GUI for the Calculator (made using PySimpleGUI). It will take (from the User) a win ratio (%), an (average) contract price, and an (average) stop-loss price and give you the ROI (%) based on those figures.
+---
 
-Here are a couple of YouTube videos I made that show me working with this Project:  
+Besides the algo trading scripts, there is a Kalshi ROI Calculator and an interactive GUI for the Calculator (made using PySimpleGUI). It will take (from the User) a win ratio (%), an (average) contract price, and an (average) stop-loss price and give you the ROI (%) based on those figures.  
+<p align="center">
+  <img src="Project_Images/Kalshi_ROI_Calc3.jpg" alt="Kalshi ROI Calculator Image">
+</p>
+
+---
+
+Here are a couple of YouTube videos I made that show me working/trading with this Kalshi API Project software:  
 https://youtu.be/Ip591Wjn2i0?si=cQYvizg9nThMy84-  
 https://youtu.be/dHoq9LxrYsk?si=biZSQycicUAM_Bqx
+
+---

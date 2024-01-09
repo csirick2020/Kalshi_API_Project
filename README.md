@@ -8,10 +8,10 @@ Capabilites of either program include:
 -Allowing the user to choose the 'yes' or 'no' side of any contract  
 -Allowing the user to set the max # of contracts he/she is willing to buy in a given session   
 -Allowing the user to set a 'stop-loss' price at which the program will sell contracts purchased within a session   
-(Note: Neither program is able to enter the stop-loss ('sell') loop until...  
+(((Note: Neither program is able to enter the stop-loss ('sell') loop until...  
 1.) max # of contracts have been bought, or  
 2.) user's 'time of day' range for buying has ended.  
-Also, contracts will not be sold (in either program) all at once- instead, they are sold one by one with a short sleep interval in between. Buying is also executed one contract at a time and has a longer sleep period to make sure price is staying consistent).
+Also, contracts will not be sold (in either program) all at once- instead, they are sold one by one with a short sleep interval in between. Buying is also executed one contract at a time and has a longer sleep period to make sure price is staying consistent.)))
 
 There are (obviously) differences between using the standard API client code, and the interactive version...
 

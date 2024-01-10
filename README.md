@@ -2,7 +2,7 @@
 
 ---
 
-This is a set of two (main) Python programs which use Kalshi's API for algorithmic trading (plus an extra tool I built that calculates ROI). The trading scripts do not use the Kalshi-python SDK. Instead, they work solely off of API calls from the ExchangeClient class in the KalshiClientsBaseV2.py script (the one included in their starter files).
+This is a set of two (main) Python programs which use Kalshi's API for algorithmic trading. The trading scripts do not use the Kalshi-python SDK. Instead, they work solely off of API calls from the ExchangeClient class in the KalshiClientsBaseV2.py script (the one included in their starter files). The project also includes an ROI calculator I built specifically for Kalshi.
 
 ---
 

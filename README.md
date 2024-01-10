@@ -1,6 +1,4 @@
----
-
-<---~~~----~~~~~--->>>---~~~--->>>---~~~--->>>-- __KALSHI API PROJECT__ --<<<---~~~---<<<---~~~---<<<---~~~~~----~~~--->
+<p align="center"><b style="color:green;">Kalshi API Project</b></p>
 
 ---
 
@@ -9,12 +7,13 @@ This is a set of two (main) Python programs which use Kalshi's API for algorithm
 ---
 
 Capabilites of either program include:  
--Logging the user in   
+-Logging the user in  
 -Showing the exchange status and whether trading is currently active  
--Displaying the user's portfolio balance   
--Creating orders based on time of day and price range. (Price is figured using (bid + ask) / 2 , AKA the "ask, bid" average.)   
+-Displaying the user's portfolio balance  
+-Creating orders based on time of day and price range...  
+(Price is figured using (bid + ask) / 2 , AKA the "ask, bid" average)  
 -Allowing the user to choose the 'yes' or 'no' side of any contract  
--Allowing the user to set the max # of contracts he/she is willing to buy in a given session   
+-Allowing the user to set the max # of contracts he/she is willing to buy in a given session  
 -Allowing the user to set a 'stop-loss' price at which the program will sell contracts purchased within a session
 
 ---
@@ -62,5 +61,3 @@ Besides the algo trading scripts, there is a Kalshi ROI Calculator and an intera
 Here are a couple of YouTube videos I made that show me working/trading with this Kalshi API Project software:  
 https://youtu.be/Ip591Wjn2i0?si=cQYvizg9nThMy84-  
 https://youtu.be/dHoq9LxrYsk?si=biZSQycicUAM_Bqx
-
----

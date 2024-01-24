@@ -2,6 +2,10 @@
 
 ---
 
+NOTE: Update as of 01/23/24 --- I have noticed Kalshi changed their 'Ticker' format once again for these financial markets. I will update code in the next few days but the changes are very simple and minor. (Example: SP500 Daily Bracket changed from INXD-{DATE} to just INX-{DATE} . 'Weekly' market is just INX-{DATE} as well (where the date falls on the end of a trading week). Kalshi seems to have also gotten rid of the 'Monthly' or 'End of Month' market (from what I can tell).)
+
+---
+
 This is a set of two (main) Python programs which use Kalshi's API for algorithmic trading. The trading scripts do not use the Kalshi-python SDK. Instead, they work solely off of API calls from the ExchangeClient class in the KalshiClientsBaseV2.py script (the one included in their starter files). The project also includes an ROI calculator I built specifically for Kalshi.
 
 ---

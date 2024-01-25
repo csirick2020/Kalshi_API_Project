@@ -2,7 +2,9 @@
 
 ---
 
-NOTE: Update as of 01/23/24 --- I have noticed Kalshi changed their 'Ticker' format once again for these financial markets. I will update code in the next few days but the changes are very simple and minor. (Example: SP500 Daily Bracket changed from INXD-{DATE} to just INX-{DATE} . 'Weekly' market is just INX-{DATE} as well (where the date falls on the end of a trading week). Kalshi seems to have also gotten rid of the 'Monthly' or 'End of Month' markets (from what I can tell).
+NOTE: Update as of 01/23/24 --- I noticed Kalshi has changed their Ticker format once again for these financial markets and removed the 'Monthly' or 'End of Month' event markets.
+
+Update: 01/25/24 --- Code is updated with new Ticker formatting. I have also added 'Kalshi_API_Interactive-FastTrader.py' which just cuts the buy/sell sleep times in half so the User can trade more contracts in a session.
 
 ---
 

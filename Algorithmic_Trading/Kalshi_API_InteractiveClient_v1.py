@@ -119,13 +119,13 @@ while True:
                         try:
                             event_type = int(
                                 input(
-                                    "Please choose your Nasdaq100 Event...\n(1) for 'Daily Bracket'\n(2) for 'Daily Up/Down'\n(3) for 'Weekly'\n(4) for 'Monthly'\n(5) for 'End of Year'\nYour choice here: "
+                                    "Please choose your Nasdaq100 Event...\n(1) for 'Daily Bracket'\n(2) for 'Daily Up/Down'\n(3) for 'Weekly'\n(4) for 'End of Year'\nYour choice here: "
                                 )
                             )
 
-                            if 1 > event_type > 5:  # User did not type a number between 1-5
+                            if 1 > event_type > 4:  # User did not type a number between 1-4
                                 print()
-                                print("Please enter an integer value between 1 and 5.")
+                                print("Please enter an integer value between 1 and 4.")
                                 print()
                                 continue
                             elif event_type == 1:
@@ -165,18 +165,6 @@ while True:
                                     break_mid = True
                                     break
                             elif event_type == 4:
-                                print()
-                                print("---Monthly Bracket---")
-                                print()
-                                while True:
-                                    event_date = input(
-                                        "Please enter the year/month/day (of the monthly bracket you want to work with) in this exact format...\nYY/MON/DD\nExample: 23/DEC/10\n*If you do not enter the year/month/day in the exact format mentioned, the program will break and you will have to start over.\n*If you choose a date on which the market is not open for trading, the program will break and you will have to start over.\n(The monthly bracket date must also fall on (you guessed it) the date on which the current month ends.) Entering a date that is not this month's end date will cause the program to break and you will have to start over.\nYou enter here: "
-                                    ).upper()
-                                    # Remove "/" characters from the user input
-                                    event_date = event_date.replace("/", "")
-                                    break_mid = True
-                                    break
-                            elif event_type == 5:
                                 print()
                                 print("---End of Year (Bracket)---")
                                 print()
@@ -206,11 +194,11 @@ while True:
                         try:
                             event_type = int(
                                 input(
-                                    "Please choose your S&P500 Event...\n(1) for 'Daily Bracket'\n(2) for 'Daily Up/Down'\n(3) for 'Weekly'\n(4) for 'Monthly'\n(5) for 'End of Year'\nYour choice here: "
+                                    "Please choose your S&P500 Event...\n(1) for 'Daily Bracket'\n(2) for 'Daily Up/Down'\n(3) for 'Weekly'\n(4) for 'End of Year'\nYour choice here: "
                                 )
                             )
 
-                            if 1 > event_type > 5:  # User did not type a number between 1-5
+                            if 1 > event_type > 4:  # User did not type a number between 1-4
                                 print()
                                 print("Please enter an integer value between 1 and 5.")
                                 print()
@@ -252,18 +240,6 @@ while True:
                                     break_mid = True
                                     break
                             elif event_type == 4:
-                                print()
-                                print("---Monthly Bracket---")
-                                print()
-                                while True:
-                                    event_date = input(
-                                        "Please enter the year/month/day (of the monthly bracket you want to work with) in this exact format...\nYY/MON/DD\nExample: 23/DEC/10\n*If you do not enter the year/month/day in the exact format mentioned, the program will break and you will have to start over.\n*If you choose a date on which the market is not open for trading, the program will break and you will have to start over.\n(The monthly bracket date must also fall on (you guessed it) the date on which the current month ends.) Entering a date that is not this month's end date will cause the program to break and you will have to start over.\nYou enter here: "
-                                    ).upper()
-                                    # Remove "/" characters from the user input
-                                    event_date = event_date.replace("/", "")
-                                    break_mid = True
-                                    break
-                            elif event_type == 5:
                                 print()
                                 print("---End of Year (Bracket)---")
                                 print()
@@ -296,16 +272,14 @@ while True:
 # Create variables for our event tickers
 # Nasdaq 100
 ndqEOY = f'NASDAQ100Y-{event_date}'
-ndqEOM = f'NASDAQ100M-{event_date}'
-ndqWeekly = f'NASDAQ100D-{event_date}'
-ndqDaily = f'NASDAQ100D-{event_date}'
+ndqWeekly = f'NASDAQ100-{event_date}'
+ndqDaily = f'NASDAQ100-{event_date}'
 ndqUpDown = f'NASDAQ100Z-{event_date}'  # Up/Down Event doesn't seem to be open every trading day (from past observation)
 
 # S&P 500
-spEOY = f'INXY-{event_date}'
-spEOM = f'INXM-{event_date}'
-spWeekly = f'INXD-{event_date}'
-spDaily = f'INXD-{event_date}'
+spEOY = f'INXD-{event_date}'
+spWeekly = f'INX-{event_date}'
+spDaily = f'INX-{event_date}'
 spUpDown = f'INXZ-{event_date}'  # Up/Down Event doesn't seem to be open every trading day (from past observation)
 
 # Create limit variable to pass into 'get_markets()' function
@@ -326,8 +300,6 @@ if market_choice == 1:  # User chose Nasdaq100
     elif event_type == 3:
         event_tick = ndqWeekly
     elif event_type == 4:
-        event_tick = ndqEOM
-    elif event_type == 5:
         event_tick = ndqEOY
 if market_choice == 2:  # User chose S&P 500
     if event_type == 1:
@@ -337,8 +309,6 @@ if market_choice == 2:  # User chose S&P 500
     elif event_type == 3:
         event_tick = spWeekly
     elif event_type == 4:
-        event_tick = spEOM
-    elif event_type == 5:
         event_tick = spEOY
 
 print()

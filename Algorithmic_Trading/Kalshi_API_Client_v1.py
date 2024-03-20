@@ -57,11 +57,7 @@ print()
 # min_close_ts:Optional[int]=None,
 # status:Optional[str]=None,
 # tickers:Optional[str]=None,
-#    ):
-# query_string = self.query_generation(params={k: v for k,v in locals().items()})
-# dictr = self.get(self.markets_url+query_string)
-# return dictr
-
+#    )
 
 # Create a list of some common event tickers
 

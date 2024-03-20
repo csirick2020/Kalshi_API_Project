@@ -229,7 +229,7 @@ sell_price = 27  # if number falls below this price, you will sell...
 # *Note: sell loop will only initiate if a) contract_ceiling is met, or b) when end_time (on buy loop) is met.*
 
 # Set a variable for how many contracts you're willing to buy while buying conditions are met within the loop
-contract_ceiling = 1
+contract_ceiling = 10
 
 # Create a variable which tells the program whether to log trades or not
 logging_trades = True
@@ -315,7 +315,7 @@ while True:
         break
 
     # TO DO: ********************************************************************************************************************
-    # Next step: Log trades should record the actual price the contract was purchased at, since the avg_yes or no is only an average between the (current) ask and bid price, and not the actual (current) purchase price. Figure out how to log this information. Perhaps display both in the log file, (what the avg_yes/no was, and what the purchase price was).
+    # Next step: Log trades should record the actual price the contract was purchased at, since the avg_yes or no is only an average between the (current) ask and bid price, and not the actual (current) purchase price.
     # ***************************************************************************************************************************
 
     # ##### 'buyblock' ##### ---------------------------------------------------------------------------------------

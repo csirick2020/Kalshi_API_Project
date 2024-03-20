@@ -1,17 +1,7 @@
 import PySimpleGUI as sg
+from Kalshi_ROI import kalshi_ROI
 
 ROI = ''
-
-# Function to calculate ROI
-def kalshi_ROI(win_ratio, contract_price, stop_loss):
-    cost_of_contract = contract_price / 100
-    stop_loss_cost = stop_loss / 100
-    total_gain = win_ratio * (1.00 - cost_of_contract)
-    total_loss = (100 - win_ratio) * (cost_of_contract - stop_loss_cost)
-    net_gain = total_gain - total_loss
-    global ROI
-    ROI = round((net_gain / contract_price) * 100, 2)
-    return ROI
 
 # Function to check if user input is a number
 def is_int(value):
@@ -51,6 +41,8 @@ while True:
         if is_int(win_ratio) and \
                 is_int(contract_price) and \
                 is_int(stop_loss):
+            # Call imported function
+            # to calculate ROI
             kalshi_ROI(int(win_ratio), int(contract_price), int(stop_loss))
             window['-ROI-'].update(f'{ROI}%')
         else:

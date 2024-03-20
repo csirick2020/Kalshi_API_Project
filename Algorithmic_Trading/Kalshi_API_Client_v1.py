@@ -147,17 +147,6 @@ def get_tickers():  # Function to extract tickers from event
 ind_mrkt_tick = ''  # Put whatever market ticker you want to work with here
 # -----------------------------------------------------------------------------------------------------------------
 ###################################################################################################################
-# Once you have the ticker, you can get the data
-# ---Format (from KalshClientsBaseV2.py)---
-###############################################
-# def get_market(self,
-# ticker:str):
-# market_url = self.get_market_url(ticker=ticker)
-# dictr = self.get(market_url)
-# return dictr
-###############################################
-
-
 def get_individual_market():  # Get an individual market's data (all data)
     ind_mrkt_data = exchange_client.get_market(ticker=ind_mrkt_tick)
     print(ind_mrkt_data)

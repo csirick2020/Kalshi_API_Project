@@ -5,6 +5,17 @@ import pytz
 from KalshiClientsBaseV2 import ExchangeClient
 import json
 
+# Set constants
+SECS_PER_MIN = 60
+# Optional 'buy' sleep time constants
+FIFTEEN_MINS = SECS_PER_MIN * 15
+SEVEN_AND_A_HALF_MINS = SECS_PER_MIN * 7.5
+FOUR_MINS = SECS_PER_MIN * 4
+# Optional 'sell' sleep time constants
+THREE_AND_A_HALF_MINS = SECS_PER_MIN * 3.5
+TWO_MINS = SECS_PER_MIN * 2
+ONE_MIN = SECS_PER_MIN
+
 # variables to disable whole blocks of code at a time:
 # (All set to True here and changed above their corresponding block)
 disable_block1 = True
@@ -13,7 +24,7 @@ disable_sellblock = True
 
 # use config file to pass in sensitive info
 # Open and read the configuration file
-config_file_path = "PATH/TO/YOUR/CONFIG/FILE.json"
+config_file_path = "/home/name01/.config/sublime-text/Programs/Kalshi_Project/config-file.json"
 
 with open(config_file_path) as config_file:
     config = json.load(config_file)
@@ -57,18 +68,15 @@ print()
 # min_close_ts:Optional[int]=None,
 # status:Optional[str]=None,
 # tickers:Optional[str]=None,
-#    )
+#    ):
 
 # Create a list of some common event tickers
-
 # Format: 'MARKETSTRING-yyMONdd'
-
 # Nasdaq 100
 ndqEOY = 'NASDAQ100Y-23DEC29'  # Only changes yearly
 ndqWeekly = 'NASDAQ100-23NOV10'  # Has to be changed weekly
 ndqDaily = 'NASDAQ100-23DEC04'  # Has to be changed daily
 ndqUpDown = 'NASDAQ100Z-23NOV17'  # Has to be changed daily
-
 # S&P 500
 spEOY = 'INXD-23DEC29'  # Only changes yearly
 spWeekly = 'INX-23NOV10'  # Has to be changed weekly
@@ -122,20 +130,18 @@ else:  # apply filter
             print(dict_number)
 
 # quit()  # If just getting event info
-
 # -----------------------------------------------------------------------------------------------------------------
 
+# #################################################################################################################
 # ### WORKING WITH INDIVIDUAL MARKETS #############################################################################
 # #################################################################################################################
-# First, extract the individual market tickers
 
-
-def get_tickers():  # Function to extract tickers from event
+# First, extract the individual market tickers (from event)
+def get_tickers():
     ticker_extract = ['ticker', 'subtitle']
     for market_data in get_markets_call['markets']:
         values = {key: market_data[key] for key in ticker_extract}
         print(values)
-
 
 # get_tickers()  # Uncomment/Comment this as needed
 
@@ -147,6 +153,7 @@ def get_tickers():  # Function to extract tickers from event
 ind_mrkt_tick = ''  # Put whatever market ticker you want to work with here
 # -----------------------------------------------------------------------------------------------------------------
 ###################################################################################################################
+
 def get_individual_market():  # Get an individual market's data (all data)
     ind_mrkt_data = exchange_client.get_market(ticker=ind_mrkt_tick)
     print(ind_mrkt_data)
@@ -154,7 +161,6 @@ def get_individual_market():  # Get an individual market's data (all data)
 
 # get_individual_market()  # This pulls up all market data, but all we need for conditional buy is ask and bid price(s).
 #################################################################################################################
-
 
 # Print individual ticker you're working with (for looks/readability on output screen)
 print(ind_mrkt_tick)
@@ -168,9 +174,8 @@ avg_no = 0  # set to 0
 contracts_bought = 0  # always starts at 0
 contracts_sold = 0  # always starts at 0
 
+
 # Function to retrieve "yes" contract data
-
-
 def get_buy_mrkt_info():
     global avg_yes
     ind_mrkt_data = exchange_client.get_market(ticker=ind_mrkt_tick)
@@ -184,8 +189,6 @@ def get_buy_mrkt_info():
 
 
 # Function to retrieve "no" contract data
-
-
 def get_buy_mrkt_info_no():
     global avg_no
     ind_mrkt_data = exchange_client.get_market(ticker=ind_mrkt_tick)
@@ -198,14 +201,10 @@ def get_buy_mrkt_info_no():
     print(avg_no)
 
 
-# ###############################################################################################################################
-# Function to write "buys" to a log file -------------------------------------------------------------------------------------------------------
-
-
+# Function to write "buys" to a log file ----------------------------------------------------------------------------------------
 def log_trade(action, timestamp, details, side):
     with open('trades_log.txt', 'a') as log_file:
         log_file.write(f"{timestamp}: {action} - {details} - {side}\n")
-
 
 # Example usage:
 # action = 'Buy'
@@ -213,23 +212,25 @@ def log_trade(action, timestamp, details, side):
 # details = avg_yes  # Change if you're using "no" market
 # side = yes_or_no
 # -------------------------------------------------------------------------------------------------------------------------------
+
 # ###############################################################################################################################
-# ############################################## >>-------------------------------------------------------------------------------------------
-# Buy/sell functionality variables *(IMPORTANT)* >>>-------------------------------------------------------------------------------
-# ############################################## >>-------------------------------------------------------------------------------------------
+# ############################################## >>---------------------------------------------------------------------------->>
+# Buy/sell functionality variables *(IMPORTANT)* >>>-------------------------------------------------------------------------->>>
+# ############################################## >>---------------------------------------------------------------------------->>
 # ###############################################################################################################################
 
 # Create a variable to choose which "side" you're on - This will enable the correct functionality below
 yes_or_no = "Yes"
 
 # Create price range variables
-price_low_end = 67  # the lowest you'll buy
-price_high_end = 70  # the highest you'll buy
-sell_price = 27  # if number falls below this price, you will sell...
+price_low_end = 62  # the lowest you'll buy
+price_high_end = 80  # the highest you'll buy
+stop_loss_sell = 29  # if contract price drops to this number, you will sell (to avoid (further) losses)
+take_profit_sell = 91  # if contract price rises to this number, you will sell (to take profits)
 # *Note: sell loop will only initiate if a) contract_ceiling is met, or b) when end_time (on buy loop) is met.*
 
 # Set a variable for how many contracts you're willing to buy while buying conditions are met within the loop
-contract_ceiling = 10
+contract_ceiling = 7
 
 # Create a variable which tells the program whether to log trades or not
 logging_trades = True
@@ -238,25 +239,24 @@ logging_trades = True
 log_only = True  # set to False to execute real trades ***!
 
 # ###############################################################################################################################
-# End of buy/sell functionality variables *(besides Time)* >>>-------------------------------------------------------------------------------
+# End of buy/sell functionality variables *(besides Time)* >>>-------------------------------------------------------------------
 #################################################################################################################################
 
 # Create a variable for number of loops (due to timeout/authentication error)
 num_of_loops = 0  # set to 0
 
 # ###############################################################################################################################
-# ############################################## >>------------------------------------------------------------------------------------------
-# Time functionality variables *(IMPORTANT)* >>>--------------------------------------------------------------------------------------------
-# ############################################## >>------------------------------------------------------------------------------------------
+# ############################################## >>---------------------------------------------------------------------------->>
+# Time functionality variables *(IMPORTANT)* >>>------------------------------------------------------------------------------>>>
+# ############################################## >>---------------------------------------------------------------------------->>
 # ###############################################################################################################################
 # Implement datetime logic into code
 # Get the current time in the 'US/Central' time zone
-central_time = dt.now(tz=pytz.timezone('US/Central')).time()
+central_time = dt.now(tz=pytz.timezone('US/Central')).time()  # Change this according to your U.S. time zone
 # Create a specified time range (using time objects) ############################################################################
-# -------------------------------------------------------------------------------------------------------------------------------
-# --#--#--#- ### SET TIME RANGE ### -#--#--#--#----------------------------------------------------------------------------------
-start_time = dt_time(12, 40)  # 12:40 PM
-end_time = dt_time(16, 35)  # 4:35 PM
+# --------_*** SET TIME RANGE ***_-----------------------------------------------------------------------------------------------
+start_time = dt_time(13, 20)  # 1:20 PM
+end_time = dt_time(14, 38)  # 2:38 PM
 # -------------------------------------------------------------------------------------------------------------------------------
 # ###############################################################################################################################
 # Create new time objects without microseconds
@@ -264,10 +264,10 @@ start_time = dt_time(start_time.hour, start_time.minute, start_time.second)
 end_time = dt_time(end_time.hour, end_time.minute, end_time.second)
 central_time = dt_time(central_time.hour, central_time.minute, central_time.second)
 # ###############################################################################################################################
-# --#--#--#- ### SET 'SELL' TIME RANGE ### -#--#--#--#---------------------------------------------------------------------------
-start_time2 = end_time
+# --------_*** SET "SELL" TIME RANGE ***_------------------------------------------------------------------------------------------
+start_time2 = end_time  # The 'sell' time range automatically begins at the end of the 'buy' time range.
 # Create a variable for (selling) end time
-end_time2 = dt_time(18, 0)  # 6:00 PM
+end_time2 = dt_time(14, 58)  # Set to 2 minutes before market close (based on your time zone)
 # -------------------------------------------------------------------------------------------------------------------------------
 # ###############################################################################################################################
 # Make end_time2 uniform (no microseconds)
@@ -285,13 +285,12 @@ while True:
         print(f"The current time is {central_time}. Your 'buy' range ended at {end_time}.")
         print()
         break
-    if num_of_loops > 20:
-        # Log-in again just in case system needs it every so often...
-        exchange_client = ExchangeClient(exchange_api_base, email, password)
-        # Get (current) exchange status
+    if num_of_loops > 20:  # Check number of loops to prevent a potential timeout error
+        exchange_client = ExchangeClient(exchange_api_base, email, password)  # log-in again (to prevent any timeouts)
+        # Display (updated) exchange status
         exchange_status = exchange_client.get_exchange_status()
         print(exchange_status)
-        print()  # Empty line after for readability
+        print()
         num_of_loops = 0  # reset loop count
 
     if yes_or_no == "Yes":
@@ -302,20 +301,16 @@ while True:
         print("Error: yes_or_no variable should be set to either 'Yes' or 'No'")
         quit()
 
-    # This line is repeated in the 'while' loop because time always updates (is not constant)
+    # This line is repeated in the 'while' loop because time (obviously) always updates
     central_time = dt.now(tz=pytz.timezone('US/Central')).time()
 
-    # Create new time object without microseconds
+    # Display time with no microseconds
     central_time = dt_time(central_time.hour, central_time.minute, central_time.second)
     print(central_time)
     print()
 
-    # Check if buying time is over before going into 'buyblock'
-    if central_time > end_time:
-        break
-
     # TO DO: ********************************************************************************************************************
-    # Next step: Log trades should record the actual price the contract was purchased at, since the avg_yes or no is only an average between the (current) ask and bid price, and not the actual (current) purchase price.
+    # Next step: Log trades should record the actual price the contract was purchased at, since the avg_yes or no is only an average between the (current) ask and bid price, and not the actual (current) purchase price. Perhaps display both in the log file, (what the avg_yes/no was, and what the purchase price was).
     # ***************************************************************************************************************************
 
     # ##### 'buyblock' ##### ---------------------------------------------------------------------------------------
@@ -353,18 +348,18 @@ while True:
                     print()
                     num_of_loops += 1
                     if contracts_bought < contract_ceiling:
-                        time.sleep(900)  # sleep for longer after a "buy" to make sure price is staying consistent
+                        time.sleep(SEVEN_AND_A_HALF_MINS)  # sleep for longer after a "buy" to make sure price is staying consistent
                         continue
                     else:
                         print("Buy ceiling has been met.")  # buy ceiling has been met
                         break
                 else:
                     num_of_loops += 1
-                    time.sleep(20)
+                    time.sleep(20)  # Sleep for 20 seconds in between time checks
                     continue
             else:
                 num_of_loops += 1
-                time.sleep(20)
+                time.sleep(20)  # Sleep for 20 seconds in between price checks
                 continue
         # "NO" SIDE *****
         elif yes_or_no == "No":
@@ -395,25 +390,25 @@ while True:
                     print()
                     num_of_loops += 1
                     if contracts_bought < contract_ceiling:
-                        time.sleep(900)  # sleep for longer after a "buy" to make sure price is staying consistent
+                        time.sleep(SEVEN_AND_A_HALF_MINS)  # sleep for longer after a "buy" to make sure price is staying consistent
                         continue
                     else:
                         print("Buy ceiling has been met.")  # buy ceiling has been met
                         break
                 else:
                     num_of_loops += 1
-                    time.sleep(20)
+                    time.sleep(20)  # Sleep for 20 seconds in between time checks
                     continue
             else:
                 num_of_loops += 1
-                time.sleep(20)
+                time.sleep(20)  # Sleep for 20 seconds in between price checks
                 continue
 
         else:
             print("Error: yes_or_no variable should be set to either 'Yes' or 'No'")
             quit()
 
-###### FORMAT FOR ORDER CREATION #######################################################
+# #### FORMAT FOR ORDER CREATION #######################################################
 # # create_order(self,
 # # ticker:str,
 # # client_order_id:str,
@@ -427,7 +422,7 @@ while True:
 # # sell_position_floor:Optional[int]=None,
 # # buy_max_cost:Optional[int]=None,
 # # ):
-##########################################################################################
+# ########################################################################################
 
 # ###############################################################################################################################
 # This is the "Sell" loop ------------------------------------------------------------------------------------------------------
@@ -435,7 +430,7 @@ while True:
 while True:
     # The first thing to check is if any contracts were bought...
     if contracts_bought < 1:
-        print(f"The number of contracts purchased is {contracts_bought}. Exiting the 'Sell loop'.")
+        print("The number of contracts purchased is 0. Exiting the 'Sell loop'.")
         print()
         break
     # The second thing is whether or not it's still 'sell' time...
@@ -443,13 +438,12 @@ while True:
         print("The time parameters for buying/selling have expired.")
         print()
         break
-    if num_of_loops > 20:
-        # Log-in again just in case system needs it every so often...
-        exchange_client = ExchangeClient(exchange_api_base, email, password)
-        # Get (current) exchange status
+    if num_of_loops > 20:  # Check number of loops to prevent a potential timeout error
+        exchange_client = ExchangeClient(exchange_api_base, email, password)  # log-in again (to prevent any timeouts)
+        # Display (updated) exchange status
         exchange_status = exchange_client.get_exchange_status()
         print(exchange_status)
-        print()  # Empty line after for readability
+        print()
         num_of_loops = 0  # reset loop count
 
     if yes_or_no == "Yes":
@@ -460,10 +454,10 @@ while True:
         print("Error: yes_or_no variable should be set to either 'Yes' or 'No'")
         quit()
 
-    # This line is repeated in the 'while' loop because time always updates (is not constant)
+    # This line is repeated in the 'while' loop because time (obviously) always updates
     central_time = dt.now(tz=pytz.timezone('US/Central')).time()
 
-    # Create new time object without microseconds
+    # Display time with no microseconds
     central_time = dt_time(central_time.hour, central_time.minute, central_time.second)
     print(central_time)
     print()
@@ -476,8 +470,8 @@ while True:
         # Implement conditional selling
         # "YES" SIDE *****
         if yes_or_no == "Yes":
-            # If the price drops to sell_price...
-            if avg_yes <= sell_price:
+            # If the price drops to stop_loss_sell or rises to take_profit_sell
+            if avg_yes <= stop_loss_sell or avg_yes >= take_profit_sell:
                 # If not just logging...
                 if log_only is False:
                     # Actual selling occurs...
@@ -502,7 +496,7 @@ while True:
                     print()
                 num_of_loops += 1
                 if contracts_sold < contracts_bought:
-                    time.sleep(200)  # Approximately 3 mins. (Sell time sleep quicker than buy sleep)
+                    time.sleep(THREE_AND_A_HALF_MINS)  # Sell sleep time quicker than buy sleep
                     continue
                 else:
                     print("All contracts bought in this session have been sold.")
@@ -510,13 +504,13 @@ while True:
                     break
             else:
                 num_of_loops += 1
-                time.sleep(20)
+                time.sleep(20)  # Sleep for 20 seconds in between price checks
                 continue
 
         # "NO" SIDE *****
         elif yes_or_no == "No":
-            # If the price drops to sell_price...
-            if avg_no <= sell_price:
+            # If the price drops to stop_loss_sell or rises to take_profit_sell
+            if avg_no <= stop_loss_sell or avg_no >= take_profit_sell:
                 # If not just logging...
                 if log_only is False:
                     # Actual selling occurs...
@@ -541,7 +535,7 @@ while True:
                     print()
                 num_of_loops += 1
                 if contracts_sold < contracts_bought:
-                    time.sleep(200)  # Approximately 3 mins. (Sell time sleep quicker than buy sleep)
+                    time.sleep(THREE_AND_A_HALF_MINS)  # Sell sleep time quicker than buy sleep.
                     continue
                 else:
                     print("All contracts bought in this session have been sold.")
@@ -549,7 +543,7 @@ while True:
                     break
             else:
                 num_of_loops += 1
-                time.sleep(20)
+                time.sleep(20)  # Sleep for 20 seconds in between price checks
                 continue
 
 # Logout Functionality (can't seem to get it to work) --------------------------------------------------------------------------
@@ -559,6 +553,6 @@ while True:
 # ### return result
 # exchange_client.logout()  # Not working, missing some kind of argument(s)...
 
-# Logout -----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------
 
 quit()

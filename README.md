@@ -2,10 +2,6 @@
 
 ---
 
-NOTE: Update as of 01/23/24 --- I noticed Kalshi has changed their Ticker format once again for these financial markets and removed the 'Monthly' or 'End of Month' event markets.
-
-Update: 01/25/24 --- Code is updated with new Ticker formatting. I have also added 'Kalshi_API_Interactive-FastTrader.py' which just cuts the buy/sell sleep times in half so the User can trade more contracts in a session.
-
 ---
 
 This is a set of two (main) Python programs which use Kalshi's API for algorithmic trading. The trading scripts do not use the Kalshi-python SDK. Instead, they work solely off of API calls from the ExchangeClient class in the KalshiClientsBaseV2.py script (the one included in their starter files). The project also includes an ROI calculator I built specifically for Kalshi.

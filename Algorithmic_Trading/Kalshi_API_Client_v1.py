@@ -24,7 +24,7 @@ disable_sellblock = True
 
 # use config file to pass in sensitive info
 # Open and read the configuration file
-config_file_path = "/home/name01/.config/sublime-text/Programs/Kalshi_Project/config-file.json"
+config_file_path = "PATH/TO/YOUR/CONFIG-FILE.json"  # Replace with your file path
 
 with open(config_file_path) as config_file:
     config = json.load(config_file)

@@ -25,7 +25,7 @@ Capabilites of either program include:
 
 ---
 
-Note: Neither program is able to enter the stop-loss ('sell') loop until...  
+Note: Neither program is able to enter the stop-loss or take-profit ('sell') loop until...  
 1.) max # of contracts have been bought, or  
 2.) user's 'time of day' range for buying has ended.
 

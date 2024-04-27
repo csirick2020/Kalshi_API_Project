@@ -7,7 +7,7 @@ This is a set of two (main) Python programs which use Kalshi's API for automated
 ---
 
 Capabilites of either program include:  
-(Update 03/30/24: The 'standard' Kalshi_API_Client_v1.py program now includes the ability to sell contracts at a profit (i.e. "take profit" functionality). I will be implementing this into the interactive version soon.)  
+-Update 04/27/24: Both the 'standard'API client and the interactive version(s) now include the ability to sell contracts at a profit (i.e. "take profit" functionality).  
 -Logging the user in  
 -Showing the exchange status and whether trading is currently active  
 -Displaying the user's portfolio balance  

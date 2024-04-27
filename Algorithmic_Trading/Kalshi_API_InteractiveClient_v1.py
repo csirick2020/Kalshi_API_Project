@@ -1,9 +1,12 @@
 # Kalshi_API_Interactive_Client_v1
+# Same as FastTrader but (buy and sell) sleep times are twice as long (trades fewer contracts)
+# TODO: Combine the two files into one with an option to choose FastTrader or regular
 
 import time
 from datetime import datetime as dt  # Alias 'datetime' as 'dt'
 from datetime import time as dt_time
 import pytz
+from stdiomask import getpass
 from KalshiClientsBaseV2 import ExchangeClient
 
 # Set time constants
@@ -13,12 +16,9 @@ FIFTEEN_MINUTES = SECONDS_PER_MINUTE * 15  # 'Buy' sleep time
 FOUR_MINUTES = SECONDS_PER_MINUTE * 4  # 'Sell' sleep time
 
 # Function for logging
-
-
 def log_trade(action, timestamp, details, side):
     with open('trades_log.txt', 'a') as log_file:
         log_file.write(f"{timestamp}: {action} - {details} - {side}\n")
-
 
 # WELCOME
 print("Welcome to the Kalshi Interactive Trading Client!")
@@ -28,7 +28,7 @@ print()
 print("First, you will need to log in with your Kalshi credentials.")
 
 email = input("Please enter your login email: ")
-password = input("Please enter your password: ")
+password = getpass(prompt='Enter your password: ', mask='*')  # Mask password on-screen with * characters
 
 # for prod
 exchange_api_base = "https://trading-api.kalshi.com/trade-api/v2"
@@ -315,7 +315,7 @@ print()
 print(f"Event ticker: {event_tick}")
 print()
 
-time.sleep(1)
+time.sleep(0.75)
 
 # Example get_markets call --- retrieves data you need (to filter, work with, etc.)
 get_markets_call = exchange_client.get_markets(limit=limiter, event_ticker=event_tick)
@@ -336,7 +336,7 @@ keys_to_access = [  # These are the data the user will be shown
 # Get the data (based on keys_to_access variable)
 print("Here is the current data for the market you have chosen: ")
 print()
-time.sleep(3)
+time.sleep(1.5)  # Mimic "loading"
 dict_number = 1
 print(dict_number)
 for market_data in get_markets_call['markets']:
@@ -383,10 +383,10 @@ contract_ceiling = int(
 contracts_bought = 0  # always begins at 0
 contracts_sold = 0  # always begins at 0
 
+# Create a variable for number of loops (to prevent possible time-outs)
+num_of_loops = 0
 
 # Function for "yes" contract data
-
-
 def get_buy_mrkt_info():
     global avg_yes
     ind_mrkt_data = exchange_client.get_market(ticker=ind_mrkt_tick)
@@ -400,8 +400,6 @@ def get_buy_mrkt_info():
 
 
 # Function for "no" contract data
-
-
 def get_buy_mrkt_info_no():
     global avg_no
     ind_mrkt_data = exchange_client.get_market(ticker=ind_mrkt_tick)
@@ -413,6 +411,226 @@ def get_buy_mrkt_info_no():
     print(f"Subtitle: {subtitle}")
     print(f"Bid/ask average: {avg_no}")
 
+# ---------------------------------------------------------------------------------------
+# Define functions to handle the 'sell loop' (for easier readability, etc.)
+# ---------------------------------------------------------------------------------------
+def yes_sell_loop(choose_take_profit):
+    global num_of_loops
+    global contracts_sold
+    # ** [Sell-loop] ** #
+    while True:
+        # The first thing to check is if any contracts were bought...
+        if contracts_bought < 1:
+            print(f"The number of contracts purchased is {contracts_bought}. Exiting the 'Sell loop'.")
+            print()
+            break
+        # Next, check if 'selling time' is over...
+        # This line is repeated in the 'while' loop because time always updates (obviously)
+        current_time = dt.now(usr_tz).time()
+        # Create new time object without microseconds (for proper comparison)
+        current_time = dt_time(current_time.hour, current_time.minute, current_time.second)
+        # compare to 'end_time2' variable
+        if current_time > end_time2:
+            print(f"The current time is {current_time}. This market's 'sell' time range ended at {end_time2}.")
+            print()
+            break
+        # Check number of loops and log in again if > 20 --- (to prevent possible time-outs)
+        if num_of_loops > 20:
+            exchange_client = ExchangeClient(exchange_api_base, email, password)
+            # Get (current) exchange status and display it
+            exchange_status = exchange_client.get_exchange_status()
+            print(exchange_status)
+            print()
+            num_of_loops = 0  # reset loop count
+
+        # Get filtered market info and display it
+        get_buy_mrkt_info()
+
+        # This line is repeated in the 'while' loop because time always updates (obviously)
+        current_time = dt.now(usr_tz).time()
+
+        # Create new time object without microseconds and display it
+        current_time = dt_time(current_time.hour, current_time.minute, current_time.second)
+        print(current_time)
+        print()
+
+        # *** [[Stop-loss 'Sell' block]] *** #
+        if choose_take_profit == '1':
+            # Only check avg_yes price compared to sell_price (for stop-loss)
+            if avg_yes <= sell_price:
+                # If not just logging...
+                if log_only is False:
+                    # Actual selling occurs...
+                    exchange_client.create_order(
+                        ticker=ind_mrkt_tick,
+                        client_order_id=exchange_client.user_id,
+                        side="yes",
+                        action="sell",
+                        count=1,
+                        type="market",
+                    )
+                contracts_sold += 1  # add one to contracts_sold before logging
+                # Write sells to log file
+                log_trade(action='Sell', timestamp=current_time, details=avg_yes, side=choose_side)
+                print(f"Selling conditions met, a total of {contracts_sold} {choose_side} contract(s) have been sold.")
+                print()
+                print("Trade logged in .txt file.")
+                print()
+                num_of_loops += 1
+                if contracts_sold < contracts_bought:
+                    time.sleep(FOUR_MINUTES)  # Sell time sleep quicker than buy sleep
+                    continue
+                else:
+                    print("All contracts bought in this session have been sold.")
+                    print()
+                    break
+            else:
+                num_of_loops += 1
+                time.sleep(20)
+                continue
+        # *** [[Take-profit (or Stop-Loss) 'Sell' block]] *** #
+        elif choose_take_profit == '2':
+            # Check avg_yes compared to sell_price and take_profit_sell
+            if avg_yes <= sell_price or avg_yes >= take_profit_sell:
+                # If not just logging...
+                if log_only is False:
+                    # Actual selling occurs...
+                    exchange_client.create_order(
+                        ticker=ind_mrkt_tick,
+                        client_order_id=exchange_client.user_id,
+                        side="yes",
+                        action="sell",
+                        count=1,
+                        type="market",
+                    )
+                contracts_sold += 1  # add one to contracts_sold before logging
+                # Write sells to log file
+                log_trade(action='Sell', timestamp=current_time, details=avg_yes, side=choose_side)
+                print(f"Selling conditions met, a total of {contracts_sold} {choose_side} contract(s) have been sold.")
+                print()
+                print("Trade logged in .txt file.")
+                print()
+                num_of_loops += 1
+                if contracts_sold < contracts_bought:
+                    time.sleep(FOUR_MINUTES)  # Sell time sleep quicker than buy sleep
+                    continue
+                else:
+                    print("All contracts bought in this session have been sold.")
+                    print()
+                    break
+            else:
+                num_of_loops += 1
+                time.sleep(20)
+                continue
+
+def no_sell_loop(choose_take_profit):
+    global num_of_loops
+    global contracts_sold
+    # ** [Sell-loop] ** #
+    while True:
+        # The first thing to check is if any contracts were bought...
+        if contracts_bought < 1:
+            print(f"The number of contracts purchased is {contracts_bought}. Exiting the 'Sell loop'.")
+            print()
+            break
+        # Next, check if 'selling time' is over...
+        # This line is repeated in the 'while' loop because time always updates (obviously)
+        current_time = dt.now(usr_tz).time()
+        # Create new time object without microseconds (for proper comparison)
+        current_time = dt_time(current_time.hour, current_time.minute, current_time.second)
+        # compare to 'end_time2' variable
+        if current_time > end_time2:
+            print(f"The current time is {current_time}. This market's 'sell' time range ended at {end_time2}.")
+            print()
+            break
+        # Check number of loops and log in again if > 20 --- (to prevent possible time-outs)
+        if num_of_loops > 20:
+            exchange_client = ExchangeClient(exchange_api_base, email, password)
+            # Get (current) exchange status and display it
+            exchange_status = exchange_client.get_exchange_status()
+            print(exchange_status)
+            print()
+            num_of_loops = 0  # reset loop count
+
+        # Get filtered market info (for 'no') and display it
+        get_buy_mrkt_info_no()
+
+        # This line is repeated in the 'while' loop because time always updates (obviously)
+        current_time = dt.now(usr_tz).time()
+
+        # Create new time object without microseconds and display it
+        current_time = dt_time(current_time.hour, current_time.minute, current_time.second)
+        print(current_time)
+        print()
+
+        # *** [[Stop-loss 'Sell' block]] *** #
+        if choose_take_profit == '1':
+            # Only check avg_yes price compared to sell_price (for stop-loss)
+            if avg_no <= sell_price:
+                # If not just logging...
+                if log_only is False:
+                    # Actual selling occurs...
+                    exchange_client.create_order(
+                        ticker=ind_mrkt_tick,
+                        client_order_id=exchange_client.user_id,
+                        side="no",
+                        action="sell",
+                        count=1,
+                        type="market",
+                    )
+                contracts_sold += 1  # add one to contracts_sold before logging
+                # Write sells to log file
+                log_trade(action='Sell', timestamp=current_time, details=avg_no, side=choose_side)
+                print(f"Selling conditions met, a total of {contracts_sold} {choose_side} contract(s) have been sold.")
+                print()
+                print("Trade logged in .txt file.")
+                print()
+                num_of_loops += 1
+                if contracts_sold < contracts_bought:
+                    time.sleep(FOUR_MINUTES)  # Sell time sleep quicker than buy sleep
+                    continue
+                else:
+                    print("All contracts bought in this session have been sold.")
+                    print()
+                    break
+            else:
+                num_of_loops += 1
+                time.sleep(20)
+                continue
+        # *** [[Take-profit (or Stop-Loss) 'Sell' block]] *** #
+        elif choose_take_profit == '2':
+            # Check avg_yes compared to sell_price and take_profit_sell
+            if avg_no <= sell_price or avg_no >= take_profit_sell:
+                # If not just logging...
+                if log_only is False:
+                    # Actual selling occurs...
+                    exchange_client.create_order(
+                        ticker=ind_mrkt_tick,
+                        client_order_id=exchange_client.user_id,
+                        side="no",
+                        action="sell",
+                        count=1,
+                        type="market",
+                    )
+                contracts_sold += 1  # add one to contracts_sold before logging
+                # Write sells to log file
+                log_trade(action='Sell', timestamp=current_time, details=avg_no, side=choose_side)
+                print(f"Selling conditions met, a total of {contracts_sold} {choose_side} contract(s) have been sold.")
+                print()
+                print("Trade logged in .txt file.")
+                print()
+                num_of_loops += 1
+                if contracts_sold < contracts_bought:
+                    time.sleep(FOUR_MINUTES)  # Sell time sleep quicker than buy sleep
+                    continue
+                else:
+                    print("All contracts bought in this session have been sold.")
+                    print()
+                    break
+            else:
+                num_of_loops += 1
+                time.sleep(20)
+                continue
 
 # --------------------------------------- USER PICKS TIME ----------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------
@@ -469,7 +687,7 @@ print()
 # Create new time objects without microseconds
 start_time = dt_time(start_time.hour, start_time.minute, start_time.second)
 end_time = dt_time(end_time.hour, end_time.minute, end_time.second)
-# ##############################################################################################################################
+# #############################################################################################################################
 # --#--#--#- ### SET 'SELL' TIME RANGE ### -#--#--#--#-------------------------------------------------------------------------
 start_time2 = end_time  # * Selling will not occur until 'buy' time range is over *
 # Create a variable for (selling) end time (based on Wall St. close)
@@ -484,14 +702,16 @@ elif usr_tz_choice == 3:
     end_time2 = dt_time(13, 58)  # 1:58 PM
 elif usr_tz_choice == 4:
     end_time2 = dt_time(12, 58)  # 12:58 PM
-# -------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------
 # ##############################################################################################################################
 # Make end_time2 uniform (no microseconds)
 end_time2 = dt_time(end_time2.hour, end_time2.minute, end_time2.second)
-# --------------------------- END OF USER PICK TIME ----------------------------------------------------------------
+# --------------------------------------- END OF USER PICKS TIME ----------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
 
 
-# ------------------------- USER PICKS PRICE (RANGE) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------ USER PICKS PRICE (RANGE) ----------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
 print("You will now choose your price range for buying contracts.")
 min_price_range = int(input("Please enter the minimum price (at which you will buy):\n(Example: '40' = $0.40)\n"))
 max_price_range = int(input("Please enter the maximum price (at which you will buy):\n(Example: '90' = $0.90)\n"))
@@ -499,13 +719,20 @@ print(f"Your price range: {min_price_range} to {max_price_range}")
 print()
 print("You will now set a stop-loss price (at which the program will sell).\n(NOTE: The contracts will sell one by one with a short interval in between each sale, NOT all at once.")
 sell_price = int(input("Set your stop-loss price: "))
+while True:
+    choose_take_profit = input("Would you like to hold your contracts until end of day or set a price at which to take profit?\nEnter 1 to hold until end of day or 2 to sell at 'take profit': ")
+    if choose_take_profit == '1' or choose_take_profit == '2':
+        break
+    else:
+        print("Please select a valid option.")
+        continue
+if choose_take_profit == '2':
+    take_profit_sell = int(input("Set your take-profit price: "))
 print()
 print("Program loop is now active.")
 print()
-# ---------------------------- END OF USER PICKS PRICE (RANGE) -----------------------------------------------------
-
-# Create a variable for number of loops (to prevent possible time-outs)
-num_of_loops = 0
+# -------------------------------- END OF USER PICKS PRICE (RANGE) -------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
 
 # ##############################################################################################################################
 # This is the "Buy" loop -------------------------------------------------------------------------------------------------------
@@ -634,129 +861,19 @@ while True:
 
 # ##############################################################################################################################
 # This is the "Sell" loop ------------------------------------------------------------------------------------------------------
+if choose_side == 'Y':
+    yes_sell_loop(choose_take_profit = choose_take_profit)
+elif choose_side == 'N':
+    no_sell_loop(choose_take_profit = choose_take_profit)
+# ------------------------------------------------------------------------------------------------------------------------------
 # ##############################################################################################################################
-while True:
-    # The first thing to check is if any contracts were bought...
-    if contracts_bought < 1:
-        print(f"The number of contracts purchased is {contracts_bought}. Exiting the 'Sell loop'.")
-        print()
-        break
-    # Next, check if 'selling time' is over...
-    # This line is repeated in the 'while' loop because time always updates (obviously)
-    current_time = dt.now(usr_tz).time()
-    # Create new time object without microseconds (for proper comparison)
-    current_time = dt_time(current_time.hour, current_time.minute, current_time.second)
-    # compare to 'end_time2' variable
-    if current_time > end_time2:
-        print(f"The current time is {current_time}. This market's 'sell' time range ended at {end_time2}.")
-        print()
-        break
-    # Check number of loops and log in again if > 20 --- (to prevent possible time-outs)
-    if num_of_loops > 20:
-        exchange_client = ExchangeClient(exchange_api_base, email, password)
-        # Get (current) exchange status and display it
-        exchange_status = exchange_client.get_exchange_status()
-        print(exchange_status)
-        print()
-        num_of_loops = 0  # reset loop count
 
-    # For "yes" contract
-    if choose_side == 'Y':
-        get_buy_mrkt_info()
-    # For "no" contract
-    elif choose_side == 'N':
-        get_buy_mrkt_info_no()
-    else:
-        print("Error: choose_side variable should be set to either 'Y' or 'N'")
-        input("Press enter to quit...")
-
-    # This line is repeated in the 'while' loop because time always updates (obviously)
-    current_time = dt.now(usr_tz).time()
-
-    # Create new time object without microseconds and display it
-    current_time = dt_time(current_time.hour, current_time.minute, current_time.second)
-    print(current_time)
-    print()
-
-    # ##### 'sellblock' ##### ---------------------------------------------------------------------------------------
-    # Implement conditional selling
-    # "YES" SIDE *****
-    if choose_side == 'Y':
-        # If the price drops to sell_price...
-        if avg_yes <= sell_price:
-            # If not just logging...
-            if log_only is False:
-                # Actual selling occurs...
-                exchange_client.create_order(
-                    ticker=ind_mrkt_tick,
-                    client_order_id=exchange_client.user_id,
-                    side="yes",
-                    action="sell",
-                    count=1,
-                    type="market",
-                )
-            contracts_sold += 1  # add one to contracts_sold before logging
-            # Write sells to log file
-            log_trade(action='Sell', timestamp=current_time, details=avg_yes, side=choose_side)
-            print(f"Selling conditions met, a total of {contracts_sold} {choose_side} contract(s) have been sold.")
-            print()
-            print("Trade logged in .txt file.")
-            print()
-            num_of_loops += 1
-            if contracts_sold < contracts_bought:
-                time.sleep(FOUR_MINUTES)  # Sell time sleep quicker than buy sleep
-                continue
-            else:
-                print("All contracts bought in this session have been sold.")
-                print()
-                break
-        else:
-            num_of_loops += 1
-            time.sleep(20)
-            continue
-
-    # "NO" SIDE *****
-    elif choose_side == 'N':
-        # If the price drops to sell_price...
-        if avg_no <= sell_price:
-            # If not just logging...
-            if log_only is False:
-                # Actual selling occurs...
-                exchange_client.create_order(
-                    ticker=ind_mrkt_tick,
-                    client_order_id=exchange_client.user_id,
-                    side="no",
-                    action="sell",
-                    count=1,
-                    type="market",
-                )
-            contracts_sold += 1  # add one to contracts_sold before logging
-            # Write sells to log file
-            log_trade(action='Sell', timestamp=current_time, details=avg_no, side=choose_side)
-            print(f"Selling conditions met, a total of {contracts_sold} {choose_side} contract(s) have been sold.")
-            print()
-            print("Trade logged in .txt file.")
-            print()
-            num_of_loops += 1
-            if contracts_sold < contracts_bought:
-                time.sleep(FOUR_MINUTES)  # Sell time sleep quicker than buy sleep
-                continue
-            else:
-                print("All contracts bought in this session have been sold.")
-                print()
-                break
-        else:
-            num_of_loops += 1
-            time.sleep(20)
-            continue
-
-# Logout Functionality (can't seem to get it to work) --------------------------------------------------------------------------
-
+# ------------------------------------------------------------------------------------------------------------------------------
+# Logout Functionality (can't seem to get it to work)...
 # def logout(self,):
 # ### result = self.post("/logout")
 # ### return result
 # exchange_client.logout()  # Not working, missing some kind of argument(s)...
-
-# Logout -----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------
 
 input("Press enter to quit...")
